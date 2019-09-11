@@ -1,7 +1,7 @@
 from copy import deepcopy
 import numpy as np
 
-def runIC (G, S):
+def runIC (G, S) -> list:
     ''' 
     Input: 
     G: 有向グラフ
@@ -25,7 +25,7 @@ def runIC (G, S):
                  T.append(v)
     return T
 
-def avgIC(G, S, iterations):
+def avgIC(G, S, iterations) -> float:
     avg = 0
     for i in range(iterations):
         avg += len(runIC(G,S))/iterations

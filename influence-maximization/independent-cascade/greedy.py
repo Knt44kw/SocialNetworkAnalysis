@@ -1,6 +1,6 @@
 from independent_cascade import avgIC
 
-def generalGreedy(G, k=10, iterations=20):
+def generalGreedy(G, k=10, iterations=20) -> list:
     S = []
     for i in range(k):
         Inf = dict() # influence for nodes not in S

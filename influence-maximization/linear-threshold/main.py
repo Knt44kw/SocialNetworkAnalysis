@@ -2,6 +2,7 @@ import networkx as nx
 from linear_threshold import *
 from greedy import generalGreedy
 from copy import deepcopy
+from joblib import Parallel, delayed
 
 def main():
     with open('./dataset/facebook_combined.txt') as f:
@@ -21,9 +22,11 @@ def main():
     Ewu = uniformWeights(G)
     # Ewr = randomWeights(G)
 
-    S = generalGreedy(G, Ewu, k=10, iterations=20)
-    print('S:(Set of the most influential Users)  is {}'.format(S))
-    print('Activated Users by S (Average) {:.3f} out of {}'.format(avgLT(G, S, Ewu, 200), len(G)))
+    S = Parallel(n_jobs=-1, verbose=5)([delayed(generalGreedy)(G, Ewu, k=10, iterations=20)]) 
+    print("Set of most influential Users {}".format(S[0][:]))
+
+    influenced_users =  Parallel(n_jobs=-1, verbose=5)([delayed(avgLT)(G, S[0][:], Ewu, iterations=200)]) 
+    print('Activated Users by S (Average) {:.3f} out of {}'.format(influenced_users[0], len(G)))
 
 if __name__ == "__main__":
     main()

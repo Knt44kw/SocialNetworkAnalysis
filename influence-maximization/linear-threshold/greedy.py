@@ -1,5 +1,4 @@
 from linear_threshold import avgLT
-import time
 
 def generalGreedy(G, Ew, k, iterations):
     S = []
