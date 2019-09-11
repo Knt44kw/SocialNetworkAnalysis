@@ -1,6 +1,6 @@
 from linear_threshold import avgLT
 
-def generalGreedy(G, Ew, k, iterations):
+def generalGreedy(G, Ew, k, iterations) -> list:
     S = []
     for i in range(k):
         Inf = dict() # influence for nodes not in S

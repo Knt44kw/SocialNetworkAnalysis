@@ -2,7 +2,7 @@ from copy import deepcopy
 import numpy as np
 import networkx as nx
 
-def uniformWeights(G):
+def uniformWeights(G) -> dict:
     '''
     Every incoming edge of v with degree dv has weight 1/dv.
     '''
@@ -14,7 +14,7 @@ def uniformWeights(G):
             Ew[(v1,v2)] = 1/dv
     return Ew
 
-def randomWeights(G):
+def randomWeights(G) -> dict:
     '''
     Every edge has random weight.
     After weights assigned,
@@ -32,7 +32,7 @@ def randomWeights(G):
             Ew[(v1,v2)] = ew[num]/total
     return Ew
 
-def checkLT(G, Ew, eps = 1e-4):
+def checkLT(G, Ew, eps = 1e-4) -> bool:
     ''' To verify that sum of all incoming weights <= 1
     '''
     for u in G:
@@ -44,7 +44,7 @@ def checkLT(G, Ew, eps = 1e-4):
             return('For node {} LT property is incorrect. Sum equals to {}').format(u,total)
     return True
 
-def runLT(G, S, Ew):
+def runLT(G, S, Ew) -> list:
     '''
     Input: G -- networkx directed graph
     S -- initial seed set of nodes
@@ -77,7 +77,7 @@ def runLT(G, S, Ew):
         Sj = deepcopy(Snew)
     return T
 
-def avgLT(G, S, Ew, iterations):
+def avgLT(G, S, Ew, iterations) -> float:
     avgSize = 0
     for i in range(iterations):
         T = runLT(G, S, Ew)
