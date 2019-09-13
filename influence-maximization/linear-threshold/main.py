@@ -5,7 +5,7 @@ from copy import deepcopy
 from joblib import Parallel, delayed
 
 def main():
-    with open('./dataset/karate.edgelist') as f:
+    with open('./dataset/facebook_combined.txt') as f:
         n, m = map(int, f.readline().split())
         G = nx.DiGraph()
         for line in f:
