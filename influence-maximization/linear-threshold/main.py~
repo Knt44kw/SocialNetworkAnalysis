@@ -8,7 +8,6 @@ from generate_graph import generateGraph
 from extract_filename import extract_dataset_name
 from copy import deepcopy
 from joblib import Parallel, delayed
-from time import time
 
 @click.command()
 @click.argument('filename', type=click.Path(exists=True))
@@ -16,8 +15,6 @@ from time import time
 def main(filename):
     k = [5, 10, 15, 20, 25]
     influenced_users_list = []
-    start = time()
-
     print("Generating Graph")
     G = Parallel(n_jobs=-1,backend="threading",verbose=10)([delayed(generateGraph)(filename)])
     print("Finished Generating Graph")
@@ -28,18 +25,17 @@ def main(filename):
     print("Finished Generating Weight")
 
     for index, _ in enumerate(k):
+        S = Parallel(n_jobs=-1,backend="threading",verbose=10)([delayed(generalGreedy)(G[0], Ewu[0], k=k[index], iterations=1)])
         print("Calculating the set of most influential Users k={}".format(k[index]))
-        S = Parallel(n_jobs=-1,backend="threading",verbose=10)([delayed(generalGreedy)(G[0], Ewu[0], k=k[index], iterations=10)])
         print("Set of most influential Users {}".format(S[0][:]))
         print("Finished calculating the set of most influential Users k={}".format(k[index]))   
 
         print("Calculating influenced Users k={}".format(k[index]))
-        influenced_users =  Parallel(n_jobs=-1,backend="threading",verbose=10)([delayed(avgLT)(G[0], S[0][:], Ewu[0], iterations=10)]) 
+        influenced_users =  Parallel(n_jobs=-1,backend="threading",verbose=10)([delayed(avgLT)(G[0], S[0][:], Ewu[0], iterations=1)]) 
         influenced_users_list.append(influenced_users)
         print('Influened Users by S (Average) {:.3f} out of {} when S = {}'.format(influenced_users[0], len(G[0]), k[index]))
         print("Finished calculating influenced Users k={}".format(k[index]))
 
-    print("It took {}".format(time()-start))
 
     plt.title("Result of influence maximization in {} Graph".format(extract_dataset_name(filename)))
     plt.xlabel("Set of most influential Users (S)")
