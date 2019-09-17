@@ -5,23 +5,22 @@ def runIC (G, S) -> list:
     ''' 
     Input: 
     G: 有向グラフ
-    S: 最も影響力を与えた(最も多く 他のユーザーを活性化させた)ユーザーの集合  
+    S: 最も影響力を与えた(最も多く 他のユーザーを活性化させた)ユーザーの初期集合  
     Output
-    T: あるユーザーuによって活性化したユーザーの数
+    T: 最終的にインフルエンサーだと推定したユーザーの集合．つまり|T| = k
     '''
-    np.random.seed(0)
 
-    T = deepcopy(S) # copy already selected nodes
-    p = dict() # probability that succeeds in activating
-
-    # 各ユーザーが他のユーザーの活性化に成功する確率
+    T = deepcopy(S) 
+    
+    # 各ユーザーが他のユーザーの活性化に成功する確率 を一様乱数で決める
+    p = dict()
     for u in G:
         p[u] = np.random.random()
-
-    for u in T: # T may increase size during iterations
-        for v in G[u]: # check whether new node v is influenced by chosen node u
+        
+    for u in T: 
+        for v in G[u]: 
              w = G[u][v]['weight']
-             if v not in T and np.random.random() < 1 - (1-p[v])**w:
+             if v not in T and np.random.random() < 1 - (1-p[u])**w: # 新たなユーザーvがインフルエンサーuによって影響を受ける(活性化する)か判断
                  T.append(v)
     return T
 
