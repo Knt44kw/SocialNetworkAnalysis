@@ -3,7 +3,7 @@ import click
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from linear_threshold import *
-from greedy import generalGreedy, generalGreedy2
+from greedy import generalGreedy
 from generate_graph import generateGraph
 from extract_filename import extract_dataset_name
 from copy import deepcopy
