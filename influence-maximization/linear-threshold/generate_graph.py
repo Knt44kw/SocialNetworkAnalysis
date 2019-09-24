@@ -1,6 +1,6 @@
 import networkx as nx
 
-def generateGraph(filename) -> nx.Graph:
+def generateGraph(filename) -> nx.DiGraph:
      with open('{}'.format(filename)) as f:
         n, m = map(int, f.readline().split())
         G = nx.DiGraph()
