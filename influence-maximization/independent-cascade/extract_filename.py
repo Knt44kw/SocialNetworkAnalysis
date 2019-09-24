@@ -7,6 +7,7 @@ def extract_dataset_name(filename) -> str:
         return karate
     elif "facebook" in target:
         facebook, _ = target.split("_")
+        return facebook
     elif "twitter" in target:
         twitter, _ = target.split("_")    
         return twitter

@@ -15,7 +15,13 @@ from time import time
 @click.argument('filename', type=click.Path(exists=True))
 
 def main(filename):
-    k = [0, 5, 10, 15, 20, 25, 30]
+
+    if extract_dataset_name(filename) == "twitter":
+        k = [0, 1000, 2000, 3000, 4000, 5000]
+
+    elif extract_dataset_name(filename) == "facebook":
+        k = [0, 100, 200, 300, 400, 500]
+
     influenced_users_list = []
     start = time()
 
@@ -31,7 +37,13 @@ def main(filename):
         print("Finished calculating the set of most influential Users k={}".format(k[index]))
 
         print("Calculating influenced Users k={}".format(k[index]))
-        influenced_users =  Parallel(n_jobs=-1,backend="threading",verbose=10)([delayed(avgIC)(G[0], S[0][:], iterations=10)]) 
+        
+        if extract_dataset_name(filename) == "twitter":
+            influenced_users =  Parallel(n_jobs=-1,backend="threading",verbose=10)([delayed(avgIC)(G[0], S[0][:], iterations=10)])
+
+        elif extract_dataset_name(filename) == "facebook":
+            influenced_users =  Parallel(n_jobs=-1,backend="threading",verbose=10)([delayed(avgIC)(G[0], S[0][:], iterations=50)])
+
         influenced_users_list.append(influenced_users)
         print('Influened Users by S (Average) {:.3f} out of {} when S = {}'.format(influenced_users[0], len(G[0]), k[index]))
         print("Finished calculating influenced Users k={}".format(k[index]))
@@ -45,19 +57,21 @@ def main(filename):
     plt.gca().get_yaxis().set_major_locator(ticker.MaxNLocator(integer=True))
    
    
-    plt.xticks([i * 5 for i in range(0, 7)])
+    plt.xticks([i * 100 for i in range(0, 6)])
     if extract_dataset_name(filename) == "karate":
         plt.ylim([0, 40])
         plt.yticks([i * 5 for i in range(0, 9)])
     elif extract_dataset_name(filename) == "facebook":
+        plt.xticks([i * 100 for i in range(0, 6)])
         plt.ylim([0, 5000])
         plt.yticks([i * 1000 for i in range(0, 6)])
     elif extract_dataset_name(filename) == "twitter":
+        plt.xticks([i * 1000 for i in range(0, 6)])
         plt.ylim([0, 90000])
         plt.yticks([i * 10000 for i in range(0, 10)])
     
     plt.plot(k, influenced_users_list)
-    plt.savefig("result_independent_cascade_{}_{}.png".format(extract_dataset_name(filename), datetime.date.today()))
+    plt.savefig("result_independent_cascade_{}_{}.png".format(extract_dataset_name(filename), datetime.datetime.now()))
     #plt.show()
     
 if __name__ == '__main__':
