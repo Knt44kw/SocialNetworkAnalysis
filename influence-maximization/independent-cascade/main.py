@@ -57,7 +57,6 @@ def main(filename):
     plt.gca().get_yaxis().set_major_locator(ticker.MaxNLocator(integer=True))
    
    
-    plt.xticks([i * 100 for i in range(0, 6)])
     if extract_dataset_name(filename) == "karate":
         plt.ylim([0, 40])
         plt.yticks([i * 5 for i in range(0, 9)])

@@ -8,10 +8,8 @@ from greedy import generalGreedy
 from ldag import *
 from generate_graph import generateGraph
 from extract_filename import extract_dataset_name
-from copy import deepcopy
 from joblib import Parallel, delayed
 from time import time
-
 
 @click.command()
 @click.argument('filename', type=click.Path(exists=True))
@@ -37,8 +35,8 @@ def main(filename):
 
     for index, _ in enumerate(k):
         print("Calculating the set of most influential Users k={}".format(k[index]))
-        S = LDAG_heuristic(G[0], Ewu[0], k=k[index], t=1/320)
-        print("Set of most influential Users {}".format(S))
+        S = Parallel(n_jobs=-1,backend="threading",verbose=10)([delayed(LDAG_heuristic)(G[0], Ewu[0], k=k[index], t=1/320)])
+        print("Set of most influential Users {}".format(S[0][:]))
         #S = Parallel(n_jobs=-1,backend="threading",verbose=10)([delayed(generalGreedy)(G[0], Ewu[0], k=k[index], iterations=10)])
         #print("Set of most influential Users {}".format(S[0][:]))
 
@@ -47,10 +45,10 @@ def main(filename):
         print("Calculating influenced Users k={}".format(k[index]))
 
         if extract_dataset_name(filename) == "twitter":
-            influenced_users =  Parallel(n_jobs=-1,backend="threading",verbose=10)([delayed(avgLT)(G[0], S, Ewu[0], iterations=10)])
+            influenced_users =  Parallel(n_jobs=-1,backend="threading",verbose=10)([delayed(avgLT)(G[0], S[0][:], Ewu[0], iterations=10)])
 
         elif extract_dataset_name(filename) == "facebook":
-            influenced_users =  Parallel(n_jobs=-1,backend="threading",verbose=10)([delayed(avgLT)(G[0], S, Ewu[0], iterations=50)])    
+            influenced_users =  Parallel(n_jobs=-1,backend="threading",verbose=10)([delayed(avgLT)(G[0], S[0][:], Ewu[0], iterations=50)])    
 
         influenced_users_list.append(influenced_users)
         print('Influened Users by S (Average) {:.3f} out of {} when S = {}'.format(influenced_users[0], len(G[0]), k[index]))
