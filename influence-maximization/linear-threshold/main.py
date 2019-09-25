@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from linear_threshold import *
 from greedy import generalGreedy
+from degree_discount import degreeDiscount
 from ldag import *
 from generate_graph import generateGraph
 from extract_filename import extract_dataset_name
@@ -36,6 +37,7 @@ def main(filename):
     for index, _ in enumerate(k):
         print("Calculating the set of most influential Users k={}".format(k[index]))
         S = Parallel(n_jobs=-1,backend="threading",verbose=10)([delayed(LDAG_heuristic)(G[0], Ewu[0], k=k[index], t=1/320)])
+        #S = Parallel(n_jobs=-1,backend="threading",verbose=10)([delayed(degreeDiscount)(G[0], k=k[index])])
         print("Set of most influential Users {}".format(S[0][:]))
         #S = Parallel(n_jobs=-1,backend="threading",verbose=10)([delayed(generalGreedy)(G[0], Ewu[0], k=k[index], iterations=10)])
         #print("Set of most influential Users {}".format(S[0][:]))
