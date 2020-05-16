@@ -26,9 +26,10 @@ https://qiita.com/FukuharaYohei/items/d109f5c3f5dce0d972e4
  
  * `mongo_dao.py`: pythonでMongoDBを使えるようにあれこれ設定してあるプログラム．これはいじらない．
 ### プログラムの実行方法
- 1. `config.py`に自分のTwitter APIキーを書く
- 2. `python get_follower_info.py`で`get_follower_info.py`を実行
- 3. `python create_socialgraph.py`で`create_socialgraph.py`を実行
+ 1.  「MongoDBのインストール方法と使い方」の項目に貼ってあるURLにしたがって，MongoDBを起動
+ 2. `config.py`に自分のTwitter APIキーを書く
+ 3. `python get_follower_info.py`で`get_follower_info.py`を実行
+ 4. `python create_socialgraph.py`で`create_socialgraph.py`を実行
  
 ## 実行結果
 * mutual_follow.png: 
