@@ -13,14 +13,14 @@
 * windows:
 https://qiita.com/Syoitu/items/db192385a4b2e4884ed5
 * linux: 
-https://qiita.com/bc_yuuuuuki/items/964efd17dae53d855c8b
+https://qiita.com/FukuharaYohei/items/d109f5c3f5dce0d972e4
 
 ## プログラムの内容と実行方法
 ### プログラムの内容
- * `get_follower_info.py`: ある自分が指定したユーザーのフォロワーの情報を取得
+ * `get_follower_info.py`: 自分で指定したユーザーのフォロワーの情報を取得
  
  * `create_socialgraph.py`: 
-    `get_follower_info.py`で取得したフォロワーのうち，相互フォローとなっているを見つけ，そのユーザーのソーシャルグラフを可視化し，その関係性を出力
+    `get_follower_info.py`で取得したフォロワーのうち，相互フォローとなっているユーザーを見つけ，そのユーザーのソーシャルグラフを可視化し，その関係性をテキストファイルで出力
  
  * `config.py`: Twitter APIの APIキーの設定を記述
  
