@@ -39,7 +39,28 @@ anacondaに含まれていないライブラリも使っている．
 
 `-k`はインフルエンサーの数 自分で好きに決めていい 
 ### 実行結果の例
+```
+python independent-cascade/simplified_main.py ../dataset/facebook_combined.txt -k 5
 
+Generating Graph
+[Parallel(n_jobs=-1)]: Using backend SequentialBackend with 1 concurrent workers.
+[Parallel(n_jobs=-1)]: Done   1 out of   1 | elapsed:    1.5s remaining:    0.0s
+[Parallel(n_jobs=-1)]: Done   1 out of   1 | elapsed:    1.5s finished
+Finished Generating Graph
+Calculating the set of most influential Users k=5
+[Parallel(n_jobs=-1)]: Using backend SequentialBackend with 1 concurrent workers.
+[Parallel(n_jobs=-1)]: Done   1 out of   1 | elapsed:    0.6s remaining:    0.0s
+[Parallel(n_jobs=-1)]: Done   1 out of   1 | elapsed:    0.6s finished
+Set of most influential Users [107, 1912, 1684, 3437, 2543]
+Finished calculating the set of most influential Users k=5
+Calculating influenced Users k=5
+[Parallel(n_jobs=-1)]: Using backend SequentialBackend with 1 concurrent workers.
+[Parallel(n_jobs=-1)]: Done   1 out of   1 | elapsed: 15.1min remaining:    0.0s
+[Parallel(n_jobs=-1)]: Done   1 out of   1 | elapsed: 15.1min finished
+Influened Users by S (Average) 3921.080 out of 4039 when S = 5
+Finished calculating influenced Users k=5
+It took 909.5985295772552
+```
 ## 補足
 * linear-thereshod/simplified_main.pyを実行する際に生じるエラー
 
