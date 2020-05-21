@@ -15,12 +15,13 @@ from time import time
 @click.argument('filename', type=click.Path(exists=True))
 
 def main(filename):
-
+   
     if extract_dataset_name(filename) == "twitter":
         k = [0, 1000, 2000, 3000, 4000, 5000]
-
     elif extract_dataset_name(filename) == "facebook":
-        k = [0, 100, 200, 300, 400, 500]
+        k = [0, 100, 200, 300, 400, 500] 
+    elif extract_dataset_name(filename) == "karate":
+        k = [0, 5, 10, 15, 20]
 
     influenced_users_list = []
     start = time()
@@ -44,11 +45,15 @@ def main(filename):
         elif extract_dataset_name(filename) == "facebook":
             influenced_users =  Parallel(n_jobs=-1,backend="threading",verbose=10)([delayed(avgIC)(G[0], S[0][:], iterations=50)])
 
+        elif extract_dataset_name(filename) == "karate":
+            influenced_users =  Parallel(n_jobs=-1,backend="threading",verbose=10)([delayed(avgIC)(G[0], S[0][:], iterations=50)])
+
         influenced_users_list.append(influenced_users)
         print('Influened Users by S (Average) {:.3f} out of {} when S = {}'.format(influenced_users[0], len(G[0]), k[index]))
         print("Finished calculating influenced Users k={}".format(k[index]))
         
     print("It took {}".format(time()-start))
+    
     plt.title("{} Graph Influence Maximization in Independent Cascade".format(extract_dataset_name(filename)))
     plt.xlabel("Set of most influential Users (S)")
     plt.ylabel("Influenced Users by S")
@@ -58,6 +63,7 @@ def main(filename):
    
    
     if extract_dataset_name(filename) == "karate":
+        plt.xticks([i * 5 for i in range(0, 5)])
         plt.ylim([0, 40])
         plt.yticks([i * 5 for i in range(0, 9)])
     elif extract_dataset_name(filename) == "facebook":

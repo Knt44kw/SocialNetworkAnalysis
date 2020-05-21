@@ -1,7 +1,7 @@
 import networkx as nx
 
 def generateGraph(filename) -> nx.Graph:
-     with open('{}'.format(filename)) as f:
+    with open('{}'.format(filename)) as f:
         n, m = map(int, f.readline().split())
         G = nx.DiGraph()
         for line in f:

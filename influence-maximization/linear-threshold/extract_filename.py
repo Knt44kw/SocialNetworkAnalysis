@@ -6,6 +6,10 @@ def extract_dataset_name(filename) -> str:
         karate, _ = target.split(".")
         return karate
     
+    elif "lesmis" in target:
+        lesmis, _ = target.split(".")
+        return lesmis
+
     elif "facebook" in target:
         facebook, _ = target.split("_")
         return facebook

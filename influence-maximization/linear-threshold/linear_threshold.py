@@ -60,6 +60,6 @@ def avgLT(G, S, Ew, iterations) -> float:
     avgSize = 0
     for i in range(iterations):
         T = runLT(G, S, Ew)
-        avgSize += len(T)/iterations
+        avgSize = len(T)/iterations
 
     return avgSize

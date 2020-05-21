@@ -1,33 +1,19 @@
-''' Implements scalable algorithm for Linear Threshold (LT) model for directed graph G.
-Each node in G is associated with a local DAG that is rooted at this node (LDAG(node)).
-Given a seed set S, this algorithm assumes that spread of influence from S to v
-happens only within LDAG(v).
-Then it adds nodes greedily. Each iteration it takes a node with the highest
-incremental influence and update other nodes accordingly.
-
-References:
-[1] Chen et al. "Scalable Influence Maximization in Social Networks under Lienar Threshold Model"
-'''
-
 from priority_queue import PriorityQueue as PQ
+from copy import deepcopy
 import networkx as nx
 
-from copy import deepcopy
 
-def FIND_LDAG(G, v, t, Ew):
+
+def find_ldag(G, v, theta, Ew) -> nx.DiGraph:
     '''
-    Compute local DAG for vertex v.
-    Reference: W. Chen "Scalable Influence Maximization in Social Networks under LT model" Algorithm 3
+    有向非巡回グラフとなるような部分グラフを作る
     INPUT:
-        G -- networkx DiGraph object
-        v -- vertex of G
-        t -- parameter theta
-        Ew -- influence weights of G
-        NOTE: Since graph G can have multiple edges between u and v,
-        total influence weight between u and v will be
-        number of edges times influence weight of one edge.
+        G -- networkの 有向グラフ
+        v -- 有向グラフのノード 
+        theta -- 閾値θ
+        Ew -- グラフG内のエッジ間の重要度
     OUTPUT:
-        D -- networkx DiGraph object that is also LDAG
+        D -- 有向グラフとなるような部分グラフ(network DiGraph)
     '''
     
     Inf = PQ()
@@ -37,32 +23,32 @@ def FIND_LDAG(G, v, t, Ew):
     X = [x]
 
     D = nx.DiGraph()
-    while M >= t:
-        out_edges = G.out_edges([x], data=True)
+    while M >= theta: # あるノードの影響度が閾値θを超えるまで繰り返す
+        out_edges = G.out_edges([x], data=True) # 終点がノードxとなるエッジを求める[(hoge, x),(fuga, x), …()]のように求められる
         for (v1,v2,edata) in out_edges:
             if v2 in X:
-                D.add_edge(v1, v2, weight=edata['weight'])
-        in_edges = G.in_edges([x])
+                D.add_edge(v1, v2, weight=edata['weight']) # ノードxが有向非巡回グラフの中に含まれていないが，最も影響度が大きい場合は有向非巡回グラフに追加
+        in_edges = G.in_edges([x]) # 始点がノードxとなるエッジを求める[(x, hoge), (x, fuga), …]のように求められる．
         for (u,_) in in_edges:
             if u not in X:
                 try:
                     [pr, _, _] = Inf.entry_finder[u]
                 except KeyError:
                     pr = 0
-                Inf.add_task(u, pr - G[u][x]['weight']*Ew[(u,x)]*M)
+                # ノードu,v間に複数のエッジがあることを想定し，エッジの数×重み = Inf(u,v) = Σ w(u,x)* Inf(x,v)としている．
+                Inf.add_task(u, pr - G[u][x]['weight']*Ew[(u,x)]*M) 
         try:
             x, priority = Inf.pop_item()
         except KeyError:
             return D
         M = -priority
-        X.append(x)
+        X.append(x) # ノードxを有向非巡回グラフのインフルエンサーとして追加
 
     return D
 
 def tsort(Dc, u, reach):
     '''
      Topological sort of DAG D with vertex u first.
-     Note: procedure alters graph Dc (in the end no edges will be present)
      Input:
      Dc -- directed acyclic graph (nx.DiGraph)
       u -- root node (int)
@@ -90,8 +76,9 @@ def tsort(Dc, u, reach):
         raise ValueError("D has cycles. No topological order.")
     return L
 
-def BFS_reach (D, u, reach):
-    ''' Breadth-First search of nodes in D starting from node u.
+def bfs_reach (D, u, reach):
+    ''' 
+    Breadth-First search of nodes in D starting from node u.
     Input:
     D -- directed acyclic graph (nx.DiGraph)
     u -- starting node (int)
@@ -118,8 +105,8 @@ def BFS_reach (D, u, reach):
     return Dc
 
 def computeAlpha(D, Ew, S, u, val=1):
-    ''' Computing linear coefficients alphas between activation probabilities.
-    Reference: [1] Algorithm 4
+    ''' 
+    Computing linear coefficients alphas between activation probabilities.
     Input:
     D -- directed acyclic graph (nx.DiGraph)
     Ew -- influence weights of edges (eg. uniform, random) (dict)
@@ -133,22 +120,24 @@ def computeAlpha(D, Ew, S, u, val=1):
     for node in D:
         A[(u,node)] = 0
     A[(u,u)] = val
-    # compute nodes that can reach u in D
-    Dc = BFS_reach(D, u, reach="in")
-    order = tsort(Dc, u, reach="in")
-    for node in order[1:]: # miss first node that already has computed Alpha
-        if node not in S + [u]:
-            out_edges = D.out_edges([node], data=True)
+
+    Dc = bfs_reach(D, u, reach="in") # ノードu(インフルエンサー)とリンクを持つユーザーの集合を表すグラフDcを求める
+    order = tsort(Dc, u, reach="in") # グラフDcに対してトポロジカルソート(一方向にして，グラフの内容は変わらないようにソート)を行う
+
+    for node in order[1:]: # はじめのノードはα=1と設定しているから
+        if node not in S + [u]: # 選ばれたノードがインフルエンサーではないとき
+            out_edges = D.out_edges([node], data=True) # 該当ノードを終点とするエッジを求める
             for (v1,v2, edata) in out_edges:
                 assert v1 == node, 'First node should be the same'
-                if v2 in order:
-                    # print v1, v2, edata, Ew[(node, v2)], A[v2]
+                # 該当ノードとエッジを持ち，グラフDc内にあるノードv2との重みを求める．
+                # これをα_{v}(u) (ノードvがインフルエンサーuによって影響を受ける確率に対する係数)とする.
+                if v2 in order: 
                     A[(u,node)] += edata['weight']*Ew[(node, v2)]*A[(u,v2)]
     return A
 
 def computeActProb(D, Ew, S, u, val=1):
-    ''' Computing activation probabilities for nodes in D.
-    Reference: [1] Algorithm 2
+    ''' 
+    Computing activation probabilities for nodes in D.
     Input:
     D -- directed acyclic graph (nx.DiGraph)
     Ew -- influence weights of edges (eg. uniform, random) (dict)
@@ -162,7 +151,7 @@ def computeActProb(D, Ew, S, u, val=1):
     for node in D:
         ap[(u,node)] = 0
     ap[(u,u)] = val
-    Dc = BFS_reach(D, u, "out")
+    Dc = bfs_reach(D, u, "out")
     order = tsort(Dc, u, "out")
     for node in order:
         if node not in S + [u]:
@@ -173,9 +162,9 @@ def computeActProb(D, Ew, S, u, val=1):
                     ap[(u,node)] += ap[(u,v1)]*Ew[(v1, node)]*edata['weight']
     return ap
 
-def LDAG_heuristic(G, Ew, k, t):
-    ''' LDAG algorithm for seed selection.
-    Reference: [1] Algorithm 5
+def LDAG_heuristic(G, Ew, k, theta):
+    ''' 
+    LDAG algorithm for seed selection.
     Input:
     G -- directed graph (nx.DiGraph)
     Ew -- inlfuence weights of edges (eg. uniform, random) (dict)
@@ -195,9 +184,8 @@ def LDAG_heuristic(G, Ew, k, t):
     ap = dict()
     A = dict()
 
-    
     for v in G:
-        LDAGs[v] = FIND_LDAG(G, v, t, Ew)
+        LDAGs[v] = find_ldag(G, v, theta, Ew) 
         # update influence set for each node in LDAGs[v] with its root
         for u in LDAGs[v]:
             InfSet.setdefault(u, []).append(v)
@@ -211,11 +199,11 @@ def LDAG_heuristic(G, Ew, k, t):
             # IncInf[u] += A[(v, u)] # in case of using dict instead of PQ
 
     for it in range(k):
-        s, priority = IncInf.pop_item() # chose node with biggest incremental influence
-        for v in InfSet[s]: # for all nodes that s can influence
-            if v not in S:
-                D = LDAGs[v]
-                # update alpha_v_u for all u that can reach s in D (lines 17-22)
+        s, priority = IncInf.pop_item() # 活性化させたノード数の多かったインフルエンサーs(α_v(u)の総和が最も多くなるようなノードv)を求める
+        for v in InfSet[s]: # インフルエンサーsによって活性化したノードv
+            if v not in S: # ノードvがインフルエンサーの集合Sに存在しなければ
+                # ノードvを前処理で求めたグラフの中に入れて，係数を更新
+                D = LDAGs[v] 
                 alpha_v_s = A[(v,s)]
                 dA = computeAlpha(D, Ew, S, s, val=-alpha_v_s)
                 for (s,u) in dA:
@@ -223,11 +211,11 @@ def LDAG_heuristic(G, Ew, k, t):
                         A[(v,u)] += dA[(s,u)]
                         priority, _, _ = IncInf.entry_finder[u] # find previous value of incremental influence of u
                         IncInf.add_task(u, priority - dA[(s,u)]*(1 - ap[(v,u)])) # and update it accordingly
-                # update ap_v_u for all u reachable from s in D (liens 23-28)
+                # update ap_v_u for all u reachable from s in D 
                 dap = computeActProb(D, Ew, S + [s], s, val=1-ap[(v,s)])
-                for (s,u) in dap:
-                    if u not in S + [s]:
-                        ap[(v,u)] += dap[(s,u)]
+                for (s,u) in dap: # ノードのsがノードuに影響を及ぼす確率dapに対して
+                    if u not in S + [s]: # ノードuがインフルエンサーでなければ
+                        ap[(v,u)] += dap[(s,u)] 
                         priority, _, _ = IncInf.entry_finder[u] # find previous value of incremental influence of u
                         IncInf.add_task(u, priority + A[(v,u)]*dap[(s,u)]) # and update it accordingly
         S.append(s)

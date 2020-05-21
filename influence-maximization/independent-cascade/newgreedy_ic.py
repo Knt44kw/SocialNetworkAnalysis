@@ -13,8 +13,8 @@ def bfs(E, S):
     Rs = []
     for u in S:
         if u in E:
-            if u not in Rs: Rs.append(u)
-            for v in E[u].keys():
+            if u not in Rs: Rs.append(u) # インフルエンサーであるがRsに含まれていなければ，Rsに追加
+            for v in E[u].keys(): # インフルエンサーと直接リンクを張っていれば，Rsに追加
                 if v not in Rs: Rs.append(v)
     return Rs
 
@@ -42,7 +42,7 @@ def findCCs(G, Ep):
                     component.extend(E[neighbor].keys())
     return CCs
 
-def newGreedyIC (G, k, Ep, R = 20):
+def newGreedyIC (G, k, Ep, R = 2000):
     S = []
     for i in range(k):
         scores = {v: 0 for v in G}

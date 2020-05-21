@@ -21,6 +21,9 @@ def main(filename):
         k = [0, 1000, 2000, 3000, 4000, 5000]
     elif extract_dataset_name(filename) == "facebook":
         k = [0, 100, 200, 300, 400, 500]
+    elif extract_dataset_name(filename) == "karate":
+        k = [0, 5, 10, 15, 20]
+    
 
     influenced_users_list = []
     start = time()
@@ -36,7 +39,7 @@ def main(filename):
 
     for index, _ in enumerate(k):
         print("Calculating the set of most influential Users k={}".format(k[index]))
-        S = Parallel(n_jobs=-1,backend="threading",verbose=10)([delayed(LDAG_heuristic)(G[0], Ewu[0], k=k[index], t=1/320)])
+        S = Parallel(n_jobs=-1,backend="threading",verbose=10)([delayed(LDAG_heuristic)(G[0], Ewu[0], k=k[index], theta=1/320)])
         #S = Parallel(n_jobs=-1,backend="threading",verbose=10)([delayed(degreeDiscount)(G[0], k=k[index])])
         print("Set of most influential Users {}".format(S[0][:]))
         #S = Parallel(n_jobs=-1,backend="threading",verbose=10)([delayed(generalGreedy)(G[0], Ewu[0], k=k[index], iterations=10)])
@@ -51,6 +54,9 @@ def main(filename):
 
         elif extract_dataset_name(filename) == "facebook":
             influenced_users =  Parallel(n_jobs=-1,backend="threading",verbose=10)([delayed(avgLT)(G[0], S[0][:], Ewu[0], iterations=50)])    
+        
+        elif extract_dataset_name(filename) == "karate":
+            influenced_users =  Parallel(n_jobs=-1,backend="threading",verbose=10)([delayed(avgLT)(G[0], S[0][:], Ewu[0], iterations=50)]) 
 
         influenced_users_list.append(influenced_users)
         print('Influened Users by S (Average) {:.3f} out of {} when S = {}'.format(influenced_users[0], len(G[0]), k[index]))
@@ -66,6 +72,7 @@ def main(filename):
     plt.gca().get_yaxis().set_major_locator(ticker.MaxNLocator(integer=True)) # y軸に小数点が表示されることを防ぐ
     
     if extract_dataset_name(filename) == "karate":
+        plt.xticks([i * 5 for i in range(0, 5)])
         plt.ylim([0, 40])
         plt.yticks([i * 5 for i in range(0, 9)])
     elif extract_dataset_name(filename) == "facebook":
