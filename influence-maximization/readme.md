@@ -12,6 +12,8 @@ https://qiita.com/tnatsume00/items/e147662368d02e6416d2<br>
 * gitの使い方:
 https://qiita.com/nnahito/items/565f8755e70c51532459 <br>
 とかを参照
+* プログラムの変更した部分だけ，自分の環境に取り入れたいとき<br>
+→　`git pull origin master`とターミナルに打つことで，取り込む
 
 ## ディレクトリについて
 `linear-threshold`: 線形閾値モデルに関する処理をまとめたスクリプト<br>
@@ -29,41 +31,99 @@ anacondaに含まれていないライブラリも使っている．
 
 <b>線形閾値モデル</b>: 
 
-`python ./linear-threshold/simplified_main.py ../dataset/{facebook_combined.txt}{twitter_combined.txt}{karate.edgelist} -k 10`<br>
+`python ./linear-threshold/simplified_main.py ../dataset/{facebook_combined.txt}{twitter_combined.txt}{karate.edgelist} -k 10 -i 10`<br>
 
 <b>独立カスケードモデル</b>: 
 
-`python ./independent-cascade/simplified_main.py ../dataset/{facebook_combined.txt}{twitter_combined.txt}{karate.edgelist} -k 10`
+`python ./independent-cascade/simplified_main.py ../dataset/{facebook_combined.txt}{twitter_combined.txt}{karate.edgelist} -k 10 -i 10 -p False`
 
 `{}`はこの文字列の中から好きなものをどれか一つ選ぶ
 
-`-k`はインフルエンサーの数 自分で好きに決めていい 
+`-k`はインフルエンサーの数 自分で好きに決めていい<br> 
+`-i`はシミュレーションの繰り返し回数 自分で好きに決めていい<br>
+
+#### 独立カスケードモデルのみ
+
+`-p`は 自分の友人に影響を与えることに成功する確率pを全ユーザー共通するかどうか(True: 共通にする．False:しない．デフォルトは固定)
 
 独立カスケードモデルのほうが情報拡散のモデルとして，まとも．(一人が複数の人に一気に情報を伝えている様子を表現しているから)<br>
 どっちの結果を信用したらいいか迷った場合は，独立カスケードモデル結果をもとに今後の分析を進めるといいと思う
-### 実行結果の例
-```
-python independent-cascade/simplified_main.py ../dataset/facebook_combined.txt -k 5
 
-Generating Graph
-[Parallel(n_jobs=-1)]: Using backend SequentialBackend with 1 concurrent workers.
-[Parallel(n_jobs=-1)]: Done   1 out of   1 | elapsed:    1.5s remaining:    0.0s
-[Parallel(n_jobs=-1)]: Done   1 out of   1 | elapsed:    1.5s finished
-Finished Generating Graph
-Calculating the set of most influential Users k=5
-[Parallel(n_jobs=-1)]: Using backend SequentialBackend with 1 concurrent workers.
-[Parallel(n_jobs=-1)]: Done   1 out of   1 | elapsed:    0.6s remaining:    0.0s
-[Parallel(n_jobs=-1)]: Done   1 out of   1 | elapsed:    0.6s finished
-Set of most influential Users [107, 1912, 1684, 3437, 2543]
-Finished calculating the set of most influential Users k=5
-Calculating influenced Users k=5
-[Parallel(n_jobs=-1)]: Using backend SequentialBackend with 1 concurrent workers.
-[Parallel(n_jobs=-1)]: Done   1 out of   1 | elapsed: 15.1min remaining:    0.0s
-[Parallel(n_jobs=-1)]: Done   1 out of   1 | elapsed: 15.1min finished
-Influened Users by S (Average) 3921.080 out of 4039 when S = 5
-Finished calculating influenced Users k=5
-It took 909.5985295772552
+### 実行結果の例
+* -p Trueの場合(自分の友人に影響を与えることに成功する確率pが全ユーザー共通)
+→ 全シミュレーション中，必ず同じ人が同じ回数だけインフルエンサーに選ばれる．(詳しくは実行結果を参照)
+
 ```
+python independent-cascade/simplified_main.py -k 5 -i 10  ../dataset/karate.edgelist
+
+Round 1
+Calculating the set of most influential Users k=5
+Set of most influential Users [34, 1, 33, 2, 3] at round 1
+Finished calculating the set of most influential Users k=5
+
+Round 2
+Calculating the set of most influential Users k=5
+Set of most influential Users [34, 1, 33, 2, 3] at round 2
+Finished calculating the set of most influential Users k=5
+
+(中略)
+
+Round 9
+Calculating the set of most influential Users k=5
+Set of most influential Users [34, 1, 33, 2, 3] at round 9
+Finished calculating the set of most influential Users k=5
+
+Round 10
+Calculating the set of most influential Users k=5
+Set of most influential Users [34, 1, 33, 2, 3] at round 10
+Finished calculating the set of most influential Users k=5
+
+influencer 34.0 is selected 10 times
+influencer 1.0 is selected 10 times
+influencer 33.0 is selected 10 times
+influencer 2.0 is selected 10 times
+influencer 3.0 is selected 10 times
+
+It took 0.0036416053771972656
+```
+
+* -p Falseの場合(自分の友人に影響を与えることに成功する確率pをユーザーごとに設定する)<br>
+→ インフルエンサーと選ばれた回数がプログラムの実行のたびに毎回変化する．
+
+```
+python independent-cascade/simplified_main.py -k 5 -i 10 -p False ../dataset/karate.edgelist
+
+Round 1
+Calculating the set of most influential Users k=5
+Set of most influential Users [34, 1, 33, 4, 26] at round 1
+Finished calculating the set of most influential Users k=5
+
+Round 2
+Calculating the set of most influential Users k=5
+Set of most influential Users [34, 1, 2, 26, 33] at round 2
+Finished calculating the set of most influential Users k=5
+
+(中略)
+
+Round 9
+Calculating the set of most influential Users k=5
+Set of most influential Users [34, 1, 33, 26, 4] at round 9
+Finished calculating the set of most influential Users k=5
+
+Round 10
+Calculating the set of most influential Users k=5
+Set of most influential Users [34, 1, 33, 26, 17] at round 10
+Finished calculating the set of most influential Users k=5
+
+influencer 34.0 is selected 10 times
+influencer 1.0 is selected 10 times
+influencer 26.0 is selected 10 times
+influencer 33.0 is selected 8 times
+influencer 4.0 is selected 4 times
+
+It took 0.0041658878326416016
+```
+
 ## 補足
 * linear-thereshod/simplified_main.pyを実行する際に生じるエラー
 
