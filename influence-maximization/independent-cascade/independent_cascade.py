@@ -6,7 +6,7 @@ def runIC (G, S, probability_fixed=True) -> list:
     Input: 
     G: 無向 or 有向グラフ
     S: 最も影響を与えた(最も多く 他のユーザーを活性化させた)ユーザーの集合  
-    probability_fixed: 自分の友人に影響を与えることに成功する確率pを全ユーザーに一緒の値にするかどうか(True:固定する.False:固定しない)
+    probability_fixed: 自分の友人に影響を与えることに成功する確率pを全ユーザーに共通にするかどうか(True:共通にする.False:しない)
     
     Output
     T: インフルエンサーによって影響を受けたユーザー数

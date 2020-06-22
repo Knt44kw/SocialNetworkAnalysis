@@ -6,7 +6,7 @@ def degreeDiscount(G, k, probability_fixed=True):
     Input: 
     G: 無向 or 有向グラフ
     k: 求めたいインフルエンサーの数
-    probability_fixed: 自分の友人に影響を与えることに成功する確率pを全ユーザーに一緒の値にするかどうか(True: 固定する．False:固定しない)
+    probability_fixed: 自分の友人に影響を与えることに成功する確率pを全ユーザー共通にするかどうか(True: 共通にする．False:しない)
     
     Output
     S: インフルエンサーの集合 |S| = k

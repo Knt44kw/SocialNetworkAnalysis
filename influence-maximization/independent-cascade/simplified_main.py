@@ -16,7 +16,7 @@ import numpy as np
 @click.argument('filename', type=click.Path(exists=True))
 @click.option('--influencer', '-k', type=int, default=10, help='Set Number of influencers')
 @click.option('--iteration', '-i', type=int, default=10, help='Set Number of iterations')
-# 自分の友人に影響を与えることに成功する確率pを全ユーザーに一緒の値にするかどうか(True: 固定する．False:固定しない．デフォルトは固定)
+# 自分の友人に影響を与えることに成功する確率pを全ユーザー共通にするかどうか(True: 共通にする．False:しない．デフォルトは共通)
 @click.option('--probability_fixed', '-p', type=bool, default=True, help='Set whether influence probablity is fixed among all users') 
 
 
@@ -29,7 +29,7 @@ def main(filename, influencer, iteration, probability_fixed):
     
         print("Calculating the set of most influential Users k={}".format(influencer))
         S = Parallel(n_jobs=-1,backend="threading",verbose=0)([delayed(degreeDiscount)(G[0], k=influencer, probability_fixed=probability_fixed)])
-        print("Set of most influential Users {} at round {}".format(S[0][:], i)) # それぞれのシミュレーション中のインフルエンサーを抽出
+        print("Set of most influential Users {} at round {}".format(S[0][:], i+1)) # それぞれのシミュレーション中のインフルエンサーを抽出
         print("Finished calculating the set of most influential Users k={}\n".format(influencer))
         
         each_influencer_list = np.append(each_influencer_list, S[0][:])
