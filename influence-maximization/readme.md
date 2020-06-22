@@ -13,7 +13,7 @@ https://qiita.com/tnatsume00/items/e147662368d02e6416d2<br>
 https://qiita.com/nnahito/items/565f8755e70c51532459 <br>
 とかを参照
 
-## ティレクトリについて
+## ディレクトリについて
 `linear-threshold`: 線形閾値モデルに関する処理をまとめたスクリプト<br>
 `independent-cascade`:  独立カスケードモデルに関する処理をまとめたスクリプト
 ## 実行環境
