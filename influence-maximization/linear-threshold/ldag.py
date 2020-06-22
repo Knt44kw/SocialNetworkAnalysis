@@ -2,8 +2,6 @@ from priority_queue import PriorityQueue as PQ
 from copy import deepcopy
 import networkx as nx
 
-
-
 def find_ldag(G, v, theta, Ew) -> nx.DiGraph:
     '''
     有向非巡回グラフとなるような部分グラフを作る
@@ -178,7 +176,7 @@ def LDAG_heuristic(G, Ew, k, theta):
     IncInf = PQ()
     for node in G:
         IncInf.add_task(node, 0)
-    # IncInf = dict(zip(G.nodes(), [0]*len(G))) # in case of usage dict instead of PQ
+    
     LDAGs = dict()
     InfSet = dict()
     ap = dict()
@@ -196,8 +194,7 @@ def LDAG_heuristic(G, Ew, k, theta):
             ap[(v, u)] = 0 # additionally set initial activation probability (line 7)
             priority, _, _ = IncInf.entry_finder[u] # find previous value of IncInf
             IncInf.add_task(u, priority - A[(v, u)]) # and add alpha
-            # IncInf[u] += A[(v, u)] # in case of using dict instead of PQ
-
+            
     for it in range(k):
         s, priority = IncInf.pop_item() # 活性化させたノード数の多かったインフルエンサーs(α_v(u)の総和が最も多くなるようなノードv)を求める
         for v in InfSet[s]: # インフルエンサーsによって活性化したノードv
