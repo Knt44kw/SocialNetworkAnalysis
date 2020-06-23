@@ -14,7 +14,7 @@ def runIC (G, S, probability_fixed=True) -> list:
 
     T = deepcopy(S) 
     
-    # 各ユーザーが他のユーザーの活性化に成功する確率 を一様乱数で決める
+    
     if probability_fixed:
         p = 0.01
         for u in T: 
