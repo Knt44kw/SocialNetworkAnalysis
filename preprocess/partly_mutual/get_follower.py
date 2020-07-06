@@ -10,14 +10,18 @@ import os
 
 def authenticate_api_key():
 	"""
-	twitter api keyを読み込む関数
-
+	twitter api keyを読み込み，認証を行う関数
 	"""
 	CK	  = config.CONSUMER_KEY
 	CS	  = config.CONSUMER_SECRET
 	AT	  = config.ACCESS_TOKEN
 	ATS	 = config.ACCESS_TOKEN_SECRET
-	return CK, CS, AT, ATS
+	
+	auth = tweepy.OAuthHandler(CK, CS)
+	auth.set_access_token(AT, ATS)
+	api = tweepy.API(auth, wait_on_rate_limit=True)
+
+	return api
 
 
 def divide_and_read_csv():
@@ -93,12 +97,7 @@ def main():
 	divided_user_ids = divide_and_read_csv()
 	all_user_ids = pd.read_csv("./user_id.csv")
 
-	CK, CS, AT, ATS = authenticate_api_key()
-
-	#API認証
-	auth = tweepy.OAuthHandler(CK, CS)
-	auth.set_access_token(AT, ATS)
-	api = tweepy.API(auth, wait_on_rate_limit=True)
+	api = authenticate_api_key()
 	
 	print("start")
 	start = time()
@@ -123,11 +122,11 @@ def main():
 	merged_graph = nx.DiGraph()
 
 	# 分割した(フォロワーのid,フォロワーの属性,ソーシャルグラフ)を結合
-	for i in range(divide_and_read_csv):
+	for i in range(len(divided_user_ids)):
 		merged_follower_id_list.update(result[i][0])
 	graph = nx.from_dict_of_lists(merged_follower_id_list)
 
-	for i in range(divided_user_ids):
+	for i in range(len(divided_user_ids)):
 		for key, value in result[i][1].items():
 			merged_node_attributes[key].update(value)
 	nx.set_node_attributes(graph, merged_node_attributes)
